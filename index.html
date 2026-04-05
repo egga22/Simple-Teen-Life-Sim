@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Teen Life Sim</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 560px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        line-height: 1.4;
+      }
+
+      h1 {
+        margin-bottom: 0.5rem;
+      }
+
+      .stats {
+        display: flex;
+        gap: 1rem;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+      }
+
+      .actions {
+        display: grid;
+        gap: 0.5rem;
+      }
+
+      button {
+        padding: 0.7rem;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+
+      #message {
+        margin-top: 1rem;
+        min-height: 1.5rem;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Simple Teen Life Sim</h1>
+    <p>Manage your money and happiness.</p>
+
+    <div class="stats">
+      <div>Money: $<span id="money">20</span></div>
+      <div>Happiness: <span id="happiness">50</span></div>
+    </div>
+
+    <div class="actions">
+      <button id="chores">Do chores (+$10, -5 happiness)</button>
+      <button id="chips">Buy chips (-$5, +10 happiness)</button>
+      <button id="game">Buy video game for $70 (win)</button>
+      <button id="skip">Skip school (50/50)</button>
+    </div>
+
+    <p id="message" aria-live="polite"></p>
+
+    <script>
+      const state = {
+        money: 20,
+        happiness: 50,
+        won: false,
+      };
+
+      const moneyEl = document.getElementById('money');
+      const happinessEl = document.getElementById('happiness');
+      const messageEl = document.getElementById('message');
+      const choresBtn = document.getElementById('chores');
+      const chipsBtn = document.getElementById('chips');
+      const gameBtn = document.getElementById('game');
+      const skipBtn = document.getElementById('skip');
+
+      function clamp(value) {
+        return Math.max(0, value);
+      }
+
+      function updateUI() {
+        moneyEl.textContent = String(state.money);
+        happinessEl.textContent = String(state.happiness);
+        chipsBtn.disabled = state.money < 5 || state.won;
+        gameBtn.disabled = state.money < 70 || state.won;
+        choresBtn.disabled = state.won;
+        skipBtn.disabled = state.won;
+      }
+
+      function setMessage(text) {
+        messageEl.textContent = text;
+      }
+
+      choresBtn.addEventListener('click', () => {
+        state.money += 10;
+        state.happiness = clamp(state.happiness - 5);
+        setMessage('You finished chores and earned money.');
+        updateUI();
+      });
+
+      chipsBtn.addEventListener('click', () => {
+        if (state.money < 5) {
+          setMessage('Not enough money for chips.');
+          return;
+        }
+        state.money -= 5;
+        state.happiness += 10;
+        setMessage('Crunch! Chips improved your mood.');
+        updateUI();
+      });
+
+      gameBtn.addEventListener('click', () => {
+        if (state.money < 70) {
+          setMessage('You need $70 to buy the video game.');
+          return;
+        }
+        state.money -= 70;
+        state.won = true;
+        setMessage('You bought the video game. You win!');
+        updateUI();
+      });
+
+      skipBtn.addEventListener('click', () => {
+        if (Math.random() < 0.5) {
+          state.happiness += 25;
+          setMessage('Skipping school was awesome! Big happiness boost.');
+        } else {
+          state.happiness = clamp(state.happiness - 20);
+          setMessage('You got grounded for skipping school.');
+        }
+        updateUI();
+      });
+
+      updateUI();
+    </script>
+  </body>
+</html>
